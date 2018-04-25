@@ -4,7 +4,8 @@
 
 #include <iostream>
 #include "cdk.h"
-
+#include <fstream>
+#include <stdint.h>
 
 #define MAT_W 3
 #define MAT_H 5
@@ -12,7 +13,19 @@
 #define MATRIX_NAME_STRING "Binary Matrix"
 
 using namespace std;
+class BinaryFileHeader{
+public:
+  uint32_t magicNumber;
+  uint32_t versionNumber;
+  uint64_t numRecords;
+};
+const int maxRecordStrLen = 25;
 
+class BinaryFileRecord{
+public:
+  uint8_t strLen;
+  char stringBuff[maxRecordStrLen];
+};
 
 int main()
 {
@@ -58,9 +71,21 @@ int main()
   /*
    * Dipslay a message
    */
-  setCDKMatrixCell(myMatrix, 2, 2, "Message");
-  drawCDKMatrix(myMatrix, true);    /* required  */
+  
+  BinaryFileHeader *binHeader = new BinaryFileHeader();
+  //  BinaryFileRecord *binRecord = new BinaryFileRecord();
 
+  ifstream binFile("cs3377.bin", ios::in | ios::binary);
+
+  binFile.read((char*) binHeader, sizeof(BinaryFileHeader));
+
+  setCDKMatrixCell(myMatrix, 1, 1,"Magic: " );
+  setCDKMatrixCell(myMatrix, 1, 2,"Version: " );
+  setCDKMatrixCell(myMatrix, 1, 3,"NumRecords: ");
+
+
+  drawCDKMatrix(myMatrix, true);    /* required  */
+  binFile.close();
   /* So we can see results, pause until a key is pressed. */
   unsigned char x;
   cin >> x;
